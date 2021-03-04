@@ -101,12 +101,12 @@ def main(argv):
                     # TODO : check the CWE from securityscancode,
                     # see PR #185 at https://github.com/security-code-scan/security-code-scan/pull/185
                     print(json.dumps([i,
-                                        {"error": m.group('finding_error')},
-                                        {"finding_short_text": m.group('finding_short_text')},
-                                        {"finding_severity": m.group('finding_severity')},
-                                        {"source_file": m.group('source_file')},
-                                        {"source_line": m.group('source_line')}
-                                        ]
+                                      {"error": m.group('finding_error')},
+                                      {"finding_short_text": m.group('finding_short_text')},
+                                      {"finding_severity": m.group('finding_severity')},
+                                      {"source_file": m.group('source_file')},
+                                      {"source_line": m.group('source_line')}
+                                      ]
                                      )
                           )
                 findings.append(
@@ -118,7 +118,7 @@ def main(argv):
                       {"source_line": m.group('source_line')}
                       ))
                 )
-                i = i+1
+                i = i + 1
 
         if (args.defectURL) is not None:
             send2defect(findings, args.defectURL, args.testID, args.APIKey)
