@@ -32,7 +32,7 @@ def send2defect(findings, DD_URL, DD_ENG, DD_API):
         # Matching defectdojo Sev and Security Code Scan
 
         severity = SEVERITY[finding[3]['finding_severity']]
-        payload =  {
+        payload = {
             "test": DD_ENG,  # mandatory
             "found_by": [2],  # mandatory here static test
             "title": finding[2]['finding_short_text'],  # mandatory
@@ -47,17 +47,16 @@ def send2defect(findings, DD_URL, DD_ENG, DD_API):
             "static_finding": True,
             "dynamic_finding": False,
             "verified": False,
-            "sast_source_line":finding[5]['source_line'],
-            "sast_source_file_path" :finding[4]['source_file'],
+            "sast_source_line": finding[5]['source_line'],
+            "sast_source_file_path": finding[4]['source_file'],
         }
-
 
         try:
             r = requests.post(DD_URL, headers=headers, verify=True, data=json.dumps(payload))
             if DEBUG:
-                print (json.dumps (payload))
-                print (r.status_code)
-                print (r.content)
+                print(json.dumps (payload))
+                print(r.status_code)
+                print(r.content)
             r.close()
         except:
             r.close()
@@ -77,23 +76,23 @@ def main(argv):
         sys.exit(1)
 
     try:
-        print ("Analyzing: " + str(args.file))
+        print("Analyzing: " + str(args.file))
         fichier = open(args.file, "r")
         lines = fichier.readlines()
 
         # Pattern to find
         # Security Code Scan: /directory/file.cs(37,24): error SCS0012: Controller method is potentially vulnerable to authorization bypass.
-        finding_regexp = re.compile ("^(Security Code Scan): (?P<source_file>.*)(\((?P<source_line>[0-9]+),([0-9]+)\)): (?P<finding_severity>\w+) (?P<finding_error>.*): (?P<finding_short_text>.*)$")
+        finding_regexp = re.compile("^(Security Code Scan): (?P<source_file>.*)(\((?P<source_line>[0-9]+),([0-9]+)\)): (?P<finding_severity>\w+) (?P<finding_error>.*): (?P<finding_short_text>.*)$")
 
-        i=0;
+        i = 0;
         findings = list()
         for line in lines:
-            m=re.match(finding_regexp,line)
+            m = re.match(finding_regexp,line)
             if m is not None:
                 if DEBUG:
                     #TODO : check the CWE from securityscancode,
                     # see PR #185 at https://github.com/security-code-scan/security-code-scan/pull/185
-                    print (json.dumps ([i,
+                    print(json.dumps([i,
                                         {"error": m.group ('finding_error')},
                                         {"finding_short_text": m.group ('finding_short_text')},
                                         {"finding_severity": m.group ('finding_severity')},
@@ -114,12 +113,13 @@ def main(argv):
         if (args.defectURL) is not None:
             send2defect(findings, args.defectURL, args.testID, args.APIKey)
         else:
-            print (findings)
+            print(findings)
 
     except Exception as e :
         fichier.close()
-        print (e)
+        print(e)
         sys.exit(2)
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])
