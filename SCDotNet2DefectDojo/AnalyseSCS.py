@@ -68,13 +68,13 @@ def main(argv):
                                                      'and send to a DefectDojoInstance\n If you just provide the '
                                                      'reportfile, print all in a JSON compatible output ',
                                          allow_abbrev=True)
-        parser.add_argument('--file', type=str , help='the file to parse', required='True')
-        parser.add_argument('--defectURL', type=str , help='URL of the defectDojo (ex : https://owasp.defectdojo.io)')
-        parser.add_argument('--testID', type=str , help='DefectDojo engagement')
-        parser.add_argument('--APIKey', type=str , help='DefectDojo API Key to put the finding')
+        parser.add_argument('--file', type=str, help='the file to parse', required='True')
+        parser.add_argument('--defectURL', type=str, help='URL of the defectDojo (ex : https://owasp.defectdojo.io)')
+        parser.add_argument('--testID', type=str, help='DefectDojo engagement')
+        parser.add_argument('--APIKey', type=str, help='DefectDojo API Key to put the finding')
         args = parser.parse_args()
 
-    except:
+    except Exception as e:
         sys.exit(1)
 
     try:
@@ -91,30 +91,31 @@ def main(argv):
                                     "(?P<finding_error>.*): "
                                     "(?P<finding_short_text>.*)$")
 
-        i = 0;
+        i = 0
         findings = list()
         for line in lines:
-            m = re.match(finding_regexp,line)
+            m = re.match(finding_regexp, line)
             if m is not None:
                 if DEBUG:
-                    #TODO : check the CWE from securityscancode,
+                    # TODO : check the CWE from securityscancode,
                     # see PR #185 at https://github.com/security-code-scan/security-code-scan/pull/185
                     print(json.dumps([i,
-                                        {"error": m.group ('finding_error')},
-                                        {"finding_short_text": m.group ('finding_short_text')},
-                                        {"finding_severity": m.group ('finding_severity')},
-                                        {"source_file": m.group ('source_file')},
-                                        {"source_line": m.group ('source_line')}
-                                        ]))
+                                        {"error": m.group('finding_error')},
+                                        {"finding_short_text": m.group('finding_short_text')},
+                                        {"finding_severity": m.group('finding_severity')},
+                                        {"source_file": m.group('source_file')},
+                                        {"source_line": m.group('source_line')}
+                                        ])
+                          )
                 findings.append(
                     ((i,
-                      {"error": m.group ('finding_error')},
-                      {"finding_short_text": m.group ('finding_short_text')},
-                      {"finding_severity": m.group ('finding_severity')},
-                      {"source_file": m.group ('source_file')},
-                      {"source_line": m.group ('source_line')}
-                      )
-                    ))
+                      {"error": m.group('finding_error')},
+                      {"finding_short_text": m.group('finding_short_text')},
+                      {"finding_severity": m.group('finding_severity')},
+                      {"source_file": m.group('source_file')},
+                      {"source_line": m.group('source_line')}
+                      ))
+                )
                 i = i+1
 
         if (args.defectURL) is not None:
