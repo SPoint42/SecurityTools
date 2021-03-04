@@ -9,10 +9,7 @@ import requests
 
 __author__ = "SPoint42"
 __version__ = "1.0"
-
-
-
-DEBUG=False
+DEBUG = False
 
 
 # Send to defectDojo
