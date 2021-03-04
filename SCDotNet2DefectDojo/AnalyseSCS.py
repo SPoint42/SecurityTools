@@ -1,14 +1,16 @@
-# This code is licenced under the Apache License 2.0
-# see LICENCE in the root folder of the Tools
-
-__author__="SPoint42"
-__version__="1.0"
-
 import sys
 import argparse
 import re
 import json
 import requests
+
+# This code is licenced under the Apache License 2.0
+# see LICENCE in the root folder of the Tools
+
+__author__ = "SPoint42"
+__version__ = "1.0"
+
+
 
 DEBUG=False
 
@@ -27,17 +29,18 @@ def send2defect(findings, DD_URL, DD_ENG, DD_API):
     }
 
     for finding in findings:
-        #Matching defectdojo Sev and Security Code Scan Seb
+        # Matching defectdojo Sev and Security Code Scan
+
         severity = SEVERITY[finding[3]['finding_severity']]
         payload =  {
-            "test": DD_ENG,# mandatory
-            "found_by": [2],# mandatory here static test
-            "title": finding[2]['finding_short_text'],# mandatory
-            "severity": severity,# mandatory
-            "description": finding[2]['finding_short_text'],# mandatory
+            "test": DD_ENG,  # mandatory
+            "found_by": [2],  # mandatory here static test
+            "title": finding[2]['finding_short_text'],  # mandatory
+            "severity": severity,  # mandatory
+            "description": finding[2]['finding_short_text'],  # mandatory
             "numerical_severity": severity,
-            "mitigation": "N/A",# mandatory
-            "impact": "N/A",# mandatory
+            "mitigation": "N/A",  # mandatory
+            "impact": "N/A",  # mandatory
             "active": True,
             "duplicate": False,
             "false_p": False,
