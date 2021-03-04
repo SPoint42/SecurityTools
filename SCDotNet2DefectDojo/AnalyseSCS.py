@@ -1,5 +1,5 @@
-#This code is licenced under the Apache License 2.0
-#see LICENCE in the root folder of the Tools
+# This code is licenced under the Apache License 2.0
+# see LICENCE in the root folder of the Tools
 
 __author__="SPoint42"
 __version__="1.0"
@@ -13,7 +13,7 @@ import requests
 DEBUG=False
 
 
-## Send to defectDojo
+# Send to defectDojo
 def send2defect(findings, DD_URL, DD_ENG, DD_API):
     print ("Sending to DefectDojo")
 
@@ -30,14 +30,14 @@ def send2defect(findings, DD_URL, DD_ENG, DD_API):
         #Matching defectdojo Sev and Security Code Scan Seb
         severity = SEVERITY[finding[3]['finding_severity']]
         payload =  {
-            "test": DD_ENG, # mandatory
-            "found_by": [2], # mandatory here static test
-            "title": finding[2]['finding_short_text'], # mandatory
-            "severity": severity, # obligatoire
-            "description": finding[2]['finding_short_text'], # mandatory
+            "test": DD_ENG,# mandatory
+            "found_by": [2],# mandatory here static test
+            "title": finding[2]['finding_short_text'],# mandatory
+            "severity": severity,# mandatory
+            "description": finding[2]['finding_short_text'],# mandatory
             "numerical_severity": severity,
-            "mitigation": "N/A", # mandatory
-            "impact": "N/A", # mandatory
+            "mitigation": "N/A",# mandatory
+            "impact": "N/A",# mandatory
             "active": True,
             "duplicate": False,
             "false_p": False,
@@ -74,7 +74,7 @@ def main(argv):
         sys.exit(1)
 
     try:
-        print ("Analyzing: "  + str(args.file))
+        print ("Analyzing: " + str(args.file))
         fichier = open(args.file, "r")
         lines = fichier.readlines()
 
@@ -88,21 +88,22 @@ def main(argv):
             m=re.match(finding_regexp,line)
             if m is not None:
                 if DEBUG:
-                    #TODO : check the CWE from securityscancode, see PR #185 at https://github.com/security-code-scan/security-code-scan/pull/185
+                    #TODO : check the CWE from securityscancode,
+                    # see PR #185 at https://github.com/security-code-scan/security-code-scan/pull/185
                     print (json.dumps ([i,
-                                        {"error" : m.group ('finding_error')},
-                                        {"finding_short_text" : m.group ('finding_short_text')},
-                                        {"finding_severity" : m.group ('finding_severity')},
-                                        {"source_file" : m.group ('source_file')},
-                                        {"source_line" : m.group ('source_line')}
+                                        {"error": m.group ('finding_error')},
+                                        {"finding_short_text": m.group ('finding_short_text')},
+                                        {"finding_severity": m.group ('finding_severity')},
+                                        {"source_file": m.group ('source_file')},
+                                        {"source_line": m.group ('source_line')}
                                         ]))
                 findings.append(
                     ((i,
-                      {"error" : m.group ('finding_error')},
-                      {"finding_short_text" : m.group ('finding_short_text')},
-                      {"finding_severity" : m.group ('finding_severity')},
-                      {"source_file" : m.group ('source_file')},
-                      {"source_line" : m.group ('source_line')}
+                      {"error": m.group ('finding_error')},
+                      {"finding_short_text": m.group ('finding_short_text')},
+                      {"finding_severity": m.group ('finding_severity')},
+                      {"source_file": m.group ('source_file')},
+                      {"source_line": m.group ('source_line')}
                       )
                     ))
                 i = i+1
