@@ -112,7 +112,7 @@ def main(argv):
         else:
             print(findings)
 
-    except Exception as e :
+    except Exception as e:
         fichier.close()
         print(e)
         sys.exit(2)
