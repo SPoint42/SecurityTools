@@ -75,6 +75,7 @@ def main(argv):
         args = parser.parse_args()
 
     except Exception as e:
+        print(e)
         sys.exit(1)
 
     try:
@@ -105,7 +106,8 @@ def main(argv):
                                         {"finding_severity": m.group('finding_severity')},
                                         {"source_file": m.group('source_file')},
                                         {"source_line": m.group('source_line')}
-                                        ])
+                                        ]
+                                     )
                           )
                 findings.append(
                     ((i,
