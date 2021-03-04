@@ -14,7 +14,7 @@ DEBUG = False
 
 # Send to defectDojo
 def send2defect(findings, DD_URL, DD_ENG, DD_API):
-    print ("Sending to DefectDojo")
+    print("Sending to DefectDojo")
 
     headers = {'content-type': 'application/json',
                'Authorization': 'Token ' + DD_API}
@@ -51,18 +51,23 @@ def send2defect(findings, DD_URL, DD_ENG, DD_API):
         try:
             r = requests.post(DD_URL, headers=headers, verify=True, data=json.dumps(payload))
             if DEBUG:
-                print(json.dumps (payload))
+                print(json.dumps(payload))
                 print(r.status_code)
                 print(r.content)
             r.close()
-        except:
+        except Exception as e:
+            print(e)
             r.close()
             return
 
 
 def main(argv):
     try:
-        parser = argparse.ArgumentParser(description='Analyze output of SecurityCodeScan(https://security-code-scan.github.io) and send to a DefectDojoInstance\n If you just provide the reportfile, print all in a JSON compatible output ', allow_abbrev=True)
+        parser = argparse.ArgumentParser(description='Analyze output of SecurityCodeScan '
+                                                     '(https://security-code-scan.github.io) '
+                                                     'and send to a DefectDojoInstance\n If you just provide the '
+                                                     'reportfile, print all in a JSON compatible output ',
+                                         allow_abbrev=True)
         parser.add_argument('--file', type=str , help='the file to parse', required='True')
         parser.add_argument('--defectURL', type=str , help='URL of the defectDojo (ex : https://owasp.defectdojo.io)')
         parser.add_argument('--testID', type=str , help='DefectDojo engagement')
@@ -79,7 +84,12 @@ def main(argv):
 
         # Pattern to find
         # Security Code Scan: /directory/file.cs(37,24): error SCS0012: Controller method is potentially vulnerable to authorization bypass.
-        finding_regexp = re.compile("^(Security Code Scan): (?P<source_file>.*)(\((?P<source_line>[0-9]+),([0-9]+)\)): (?P<finding_severity>\w+) (?P<finding_error>.*): (?P<finding_short_text>.*)$")
+        finding_regexp = re.compile("^(Security Code Scan): "
+                                    "(?P<source_file>.*)"
+                                    "(\((?P<source_line>[0-9]+),([0-9]+)\)): "
+                                    "(?P<finding_severity>\w+) "
+                                    "(?P<finding_error>.*): "
+                                    "(?P<finding_short_text>.*)$")
 
         i = 0;
         findings = list()
