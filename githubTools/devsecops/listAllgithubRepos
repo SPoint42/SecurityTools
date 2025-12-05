@@ -1,0 +1,133 @@
+#!/usr/bin/env python3
+import argparse
+import os
+import requests
+from urllib.parse import urlparse
+
+# You can generate a personal access token at:
+# https://github.com/settings/tokens
+# This is optional for public repos but increases rate limits
+# and is required for private repos.
+GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
+
+def get_entity_type(name, headers):
+    """
+    Determines if a GitHub entity is a User or an Organization.
+    """
+    api_url = f"https://api.github.com/users/{name}"
+    response = requests.get(api_url, headers=headers)
+    response.raise_for_status()  # Raises an exception for bad status codes
+    return response.json().get("type")
+
+def get_all_repos(repos_url, headers):
+    """
+    Retrieves all repositories from a paginated GitHub API endpoint.
+    """
+    repos = []
+    page = 1
+    while True:
+        paginated_url = f"{repos_url}?page={page}&per_page=100"
+        response = requests.get(paginated_url, headers=headers)
+        response.raise_for_status()
+        
+        data = response.json()
+        if not data:
+            # No more repositories on this page, we are done.
+            break
+        
+        repos.extend(data)
+        page += 1
+        
+        # Check Link header for next page to be more robust, though incrementing page works well.
+        if 'next' not in response.links:
+            break
+            
+    return repos
+
+def list_github_repos(github_url, token=None):
+    """
+    Lists all repositories for a given GitHub user or organization URL.
+    
+    Args:
+        github_url (str): The root URL of the GitHub user or organization
+                          (e.g., https://github.com/google).
+        token (str, optional): A GitHub Personal Access Token for authentication.
+
+    Returns:
+        list: A list of dictionaries, where each dictionary contains
+              details about a repository.
+    """
+    parsed_url = urlparse(github_url)
+    path_parts = parsed_url.path.strip('/').split('/')
+    
+    if not path_parts or not path_parts[0]:
+        raise ValueError("Invalid GitHub URL. Could not extract user/org name.")
+        
+    name = path_parts[0]
+    print(f"[*] Fetching repositories for '{name}'...")
+
+    headers = {"Accept": "application/vnd.github.v3+json"}
+    if token:
+        headers["Authorization"] = f"token {token}"
+
+    try:
+        entity_type = get_entity_type(name, headers)
+        print(f"[*] '{name}' is an {entity_type}.")
+
+        if entity_type == "User":
+            repos_url = f"https://api.github.com/users/{name}/repos"
+        elif entity_type == "Organization":
+            repos_url = f"https://api.github.com/orgs/{name}/repos"
+        else:
+            print(f"[!] Unknown entity type: {entity_type}")
+            return []
+
+        all_repos = get_all_repos(repos_url, headers)
+        return all_repos
+
+    except requests.exceptions.HTTPError as e:
+        print(f"[!] Error fetching data from GitHub API: {e}")
+        if e.response.status_code == 404:
+            print(f"[!] The user or organization '{name}' could not be found.")
+        elif e.response.status_code == 401:
+            print("[!] Authentication error. Please check your GITHUB_TOKEN.")
+        return []
+    except requests.exceptions.RequestException as e:
+        print(f"[!] A network error occurred: {e}")
+        return []
+
+def main():
+    """Main function to parse arguments and list repositories."""
+    parser = argparse.ArgumentParser(
+        description="List all repositories for a GitHub user or organization.",
+        formatter_class=argparse.RawTextHelpFormatter
+    )
+    parser.add_argument(
+        "url", 
+        help="The GitHub URL of the user or organization (e.g., https://github.com/torvalds)"
+    )
+    parser.add_argument(
+        "--format",
+        choices=['name', 'ssh', 'https'],
+        default='name',
+        help="Output format for the repositories:\n"
+             "  name: Just the repository name (default)\n"
+             "  ssh:  The SSH clone URL\n"
+             "  https: The HTTPS clone URL"
+    )
+    args = parser.parse_args()
+
+    repositories = list_github_repos(args.url, GITHUB_TOKEN)
+
+    if repositories:
+        print(f"\n[+] Found {len(repositories)} repositories:")
+        for repo in repositories:
+            if args.format == 'ssh':
+                print(repo['ssh_url'])
+            elif args.format == 'https':
+                print(repo['clone_url'])
+            else: # 'name'
+                print(repo['name'])
+
+if __name__ == "__main__":
+    main()
